@@ -1,5 +1,7 @@
 # AutoSec UDS Conformance Workbench
 
+[![CI](https://github.com/LRTechpro/autosec-uds-workbench/actions/workflows/ci.yml/badge.svg)](https://github.com/LRTechpro/autosec-uds-workbench/actions/workflows/ci.yml)
+
 A spec-driven UDS (ISO 14229) validation tool that ingests diagnostic
 traces, compares observed ECU behavior against a machine-readable
 diagnostic specification, and generates V&V-style findings and triage
