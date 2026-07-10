@@ -34,7 +34,7 @@ reused in CLI tools or automation pipelines.
 from the ECU's own responses (`50 03` = extended session entered,
 `67 02` = security unlocked, session changes relock security per
 ISO 14229-1). Declared-vs-derived mismatches are reported as
-trace-consistency findings — validating against the tester's claim would
+trace-consistency findings - validating against the tester's claim would
 be circular.
 
 **Protocol rules, not memorized examples.** Positive response SID is
