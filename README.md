@@ -83,9 +83,9 @@ python main.py
 ```
 
 1. The bundled APIM spec loads automatically (or **File → Load Spec**).
-2. **File → Open Trace** — pick any CSV from `traces/`.
-3. **F5 / Run Validation** — verdicts appear per step and per finding.
-4. **File → Export Report** — writes the Markdown triage note.
+2. **File → Open Trace** - pick any CSV from `traces/`.
+3. **F5 / Run Validation** - verdicts appear per step and per finding.
+4. **File → Export Report** - writes the Markdown triage note.
 
 Headless / automation (exit code 0 = PASS/INFO, 1 = FAIL/BLOCKED,
 2 = usage error, so a non-conforming trace fails a CI pipeline):
