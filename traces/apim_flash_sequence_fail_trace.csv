@@ -1,0 +1,4 @@
+step,module,request,response,session,security_state,note
+1,APIM,10 03,50 03 00 32 01 F4,default,locked,enter extended session
+2,APIM,10 02,50 02 00 32 01 F4,extended,locked,enter programming session
+3,APIM,34 00 44 00 08 00 00 00 00 10 00,7F 34 33,programming,locked,request download attempted before security unlock

@@ -1,0 +1,11 @@
+step,module,request,response,session,security_state,note
+1,APIM,10 03,50 03 00 32 01 F4,default,locked,enter extended session
+2,APIM,10 02,50 02 00 32 01 F4,extended,locked,enter programming session
+3,APIM,27 01,67 01 11 22 33 44,programming,locked,request seed
+4,APIM,27 02 5F 6E 7D 8C,67 02,programming,locked,send key - accepted
+5,APIM,34 00 44 00 08 00 00 00 00 10 00,74 20 0F FA,programming,unlocked,request download
+6,APIM,36 01 DE AD BE EF,76 01,programming,unlocked,transfer data block 1
+7,APIM,36 02 CA FE BA BE,76 02,programming,unlocked,transfer data block 2
+8,APIM,37,77,programming,unlocked,request transfer exit
+9,APIM,31 01 02 02,71 01 02 02,programming,unlocked,start checksum routine
+10,APIM,11 01,51 01,programming,unlocked,hard reset to activate new software

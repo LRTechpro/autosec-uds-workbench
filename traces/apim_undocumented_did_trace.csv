@@ -1,0 +1,3 @@
+step,module,request,response,session,security_state,note
+1,APIM,10 03,50 03 00 32 01 F4,default,locked,enter extended session
+2,APIM,22 D0 12,62 D0 12 01 04 C8,extended,locked,probe DID outside the documented set

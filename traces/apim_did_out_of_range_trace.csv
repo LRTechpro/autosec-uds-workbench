@@ -1,0 +1,4 @@
+step,module,request,response,session,security_state,note
+1,APIM,10 03,50 03 00 32 01 F4,default,locked,enter extended session
+2,APIM,22 F1 99,7F 22 31,extended,locked,read DID not present in spec
+3,APIM,22 F1 8C,62 F1 8C 41 42 43 31 32,extended,locked,read serial number

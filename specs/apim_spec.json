@@ -1,0 +1,71 @@
+{
+  "spec_version": "1.0",
+  "ecu": "APIM",
+  "can_id": "0x7D0",
+  "description": "Infotainment ECU (APIM) diagnostic validation profile",
+  "supported_services": {
+    "0x10": {
+      "name": "Diagnostic Session Control",
+      "allowed_sessions": ["default", "extended", "programming"],
+      "requires_security": false
+    },
+    "0x11": {
+      "name": "ECU Reset",
+      "allowed_sessions": ["default", "extended", "programming"],
+      "requires_security": false
+    },
+    "0x22": {
+      "name": "Read Data By Identifier",
+      "allowed_sessions": ["default", "extended"],
+      "requires_security": false,
+      "supported_dids": ["F190", "F187", "F18C"]
+    },
+    "0x27": {
+      "name": "Security Access",
+      "allowed_sessions": ["extended", "programming"],
+      "requires_security": false
+    },
+    "0x2E": {
+      "name": "Write Data By Identifier",
+      "allowed_sessions": ["extended"],
+      "requires_security": true,
+      "supported_dids": ["F190"]
+    },
+    "0x31": {
+      "name": "Routine Control",
+      "allowed_sessions": ["extended", "programming"],
+      "requires_security": true
+    },
+    "0x34": {
+      "name": "Request Download",
+      "allowed_sessions": ["programming"],
+      "requires_security": true
+    },
+    "0x36": {
+      "name": "Transfer Data",
+      "allowed_sessions": ["programming"],
+      "requires_security": true
+    },
+    "0x37": {
+      "name": "Request Transfer Exit",
+      "allowed_sessions": ["programming"],
+      "requires_security": true
+    },
+    "0x3E": {
+      "name": "Tester Present",
+      "allowed_sessions": ["default", "extended", "programming"],
+      "requires_security": false
+    }
+  },
+  "expected_programming_sequence": [
+    { "service": "0x10", "subfunction": "0x03" },
+    { "service": "0x10", "subfunction": "0x02" },
+    { "service": "0x27", "subfunction": "0x01" },
+    { "service": "0x27", "subfunction": "0x02" },
+    { "service": "0x34" },
+    { "service": "0x36", "repeat": true },
+    { "service": "0x37" },
+    { "service": "0x31", "subfunction": "0x01" },
+    { "service": "0x11", "subfunction": "0x01" }
+  ]
+}

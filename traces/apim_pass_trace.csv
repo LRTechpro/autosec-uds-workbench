@@ -1,0 +1,5 @@
+step,module,request,response,session,security_state,note
+1,APIM,10 03,50 03 00 32 01 F4,default,locked,enter extended session
+2,APIM,22 F1 90,62 F1 90 31 46 4D 35 4B,extended,locked,read VIN data identifier
+3,APIM,22 F1 87,62 F1 87 4C 58 36 54,extended,locked,read part number
+4,APIM,3E 00,7E 00,extended,locked,tester present

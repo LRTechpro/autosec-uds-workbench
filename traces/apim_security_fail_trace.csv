@@ -1,0 +1,5 @@
+step,module,request,response,session,security_state,note
+1,APIM,10 03,50 03 00 32 01 F4,default,locked,enter extended session
+2,APIM,27 01,67 01 1A 2B 3C 4D,extended,locked,request seed
+3,APIM,27 02 AA BB CC DD,7F 27 35,extended,locked,send key rejected - invalid key
+4,APIM,2E F1 90 01,7F 2E 33,extended,locked,write attempt while security locked

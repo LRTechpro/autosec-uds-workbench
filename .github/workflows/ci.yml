@@ -1,0 +1,24 @@
+# Continuous integration: run the engine test suite on every push/PR.
+# The GUI is deliberately untested here -- all diagnostic logic lives in
+# the engine modules, which is exactly why they can run headless in CI.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install test dependencies
+        run: pip install pytest
+      - name: Run engine test suite
+        run: pytest tests/ -v
