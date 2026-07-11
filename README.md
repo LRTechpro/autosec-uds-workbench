@@ -25,7 +25,7 @@ and the same engine validates a different ECU.
 
 **Engine/GUI separation.** All diagnostic logic lives in importable,
 GUI-free modules (`uds_decoder`, `spec_loader`, `rules_engine`,
-`report_writer`). The Tkinter layer (`main.py`) only presents results.
+`report_writer`, `trace_metrics`). The Tkinter layer (`main.py`) only presents results.
 The same engine runs headless in the pytest suite and in CI, and can be
 reused in CLI tools or automation pipelines.
 
@@ -34,7 +34,7 @@ reused in CLI tools or automation pipelines.
 from the ECU's own responses (`50 03` = extended session entered,
 `67 02` = security unlocked, session changes relock security per
 ISO 14229-1). Declared-vs-derived mismatches are reported as
-trace-consistency findings - validating against the tester's claim would
+trace-consistency findings — validating against the tester's claim would
 be circular.
 
 **Protocol rules, not memorized examples.** Positive response SID is
@@ -46,6 +46,12 @@ are parsed as `7F <SID> <NRC>` with a full NRC table, and the
 out-of-spec DID or service, or a security-gated service accepted while
 locked, is flagged as a `security` finding: undocumented surface =
 unreviewed attack surface.
+
+**Pandas-powered trace analytics.** Version 1.1 adds a `trace_metrics`
+module that uses pandas to summarize service usage, response types, DID
+coverage, NRC distribution, security-related requests, programming-related
+requests, and verdict counts. This supports a V&V metrics workflow, not just
+row-by-row decoding.
 
 ## Verdict semantics
 
@@ -66,6 +72,7 @@ autosec_uds_workbench/
 ├── spec_loader.py        # JSON diagnostic spec parsing/validation
 ├── rules_engine.py       # spec-driven conformance checks + state tracking
 ├── report_writer.py      # Markdown triage report generation
+├── trace_metrics.py      # pandas-based trace analytics and metrics export
 ├── specs/
 │   └── apim_spec.json    # example spec: infotainment ECU (APIM)
 ├── traces/               # sample traces (each exercises one scenario)
@@ -83,9 +90,11 @@ python main.py
 ```
 
 1. The bundled APIM spec loads automatically (or **File → Load Spec**).
-2. **File → Open Trace** - pick any CSV from `traces/`.
-3. **F5 / Run Validation** - verdicts appear per step and per finding.
-4. **File → Export Report** - writes the Markdown triage note.
+2. **File → Open Trace** — pick any CSV from `traces/`.
+3. **F5 / Run Validation** — verdicts appear per step and per finding.
+4. **Run → Analyze Trace Metrics** — uses pandas to summarize the trace.
+5. **File → Export Metrics CSV** — writes a metrics CSV for review.
+6. **File → Export Report** — writes the Markdown triage note.
 
 Headless / automation (exit code 0 = PASS/INFO, 1 = FAIL/BLOCKED,
 2 = usage error, so a non-conforming trace fails a CI pipeline):
@@ -95,9 +104,10 @@ python cli.py traces/apim_security_fail_trace.csv --report reports/note.md
 echo %ERRORLEVEL%
 ```
 
-Run the test suite:
+Install dependencies and run the test suite:
 
 ```
+pip install -r requirements.txt
 pytest tests/ -v
 ```
 
@@ -122,6 +132,13 @@ step,module,request,response,session,security_state,note
 
 `session`/`security_state` are the tester's *declared* state; the engine
 independently derives actual state from responses and cross-checks.
+
+## Library used in v1.1
+
+This version clearly uses the third-party Python library **pandas** for trace
+analytics. Pandas loads the trace CSV, derives additional columns, counts
+service and response distributions, summarizes NRC and DID usage, and exports
+metrics to CSV.
 
 ## Roadmap (deliberately out of scope for v1)
 

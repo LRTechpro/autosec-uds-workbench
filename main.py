@@ -36,9 +36,11 @@ from spec_loader import load_spec, SpecError
 from rules_engine import (load_trace_csv, validate_trace, verdict_for_step,
                           worst_verdict, PASS, FAIL, BLOCKED, INFO)
 from report_writer import build_report, save_report
+from trace_metrics import (MetricsError, build_trace_analytics,
+                           build_metrics_report, export_metrics_csv)
 
 APP_NAME = "AutoSec UDS Conformance Workbench"
-APP_VERSION = "1.0.4"
+APP_VERSION = "1.1.0"
 
 # Dark workbench palette. Verdicts use conventional test-report colors.
 COLORS = {
@@ -77,6 +79,7 @@ class WorkbenchApp(tk.Tk):
         self.trace_steps = []
         self.trace_path = None
         self.findings = []
+        self.metrics = None
 
         self._build_style()
         self._build_menu()
@@ -123,6 +126,8 @@ class WorkbenchApp(tk.Tk):
         filemenu.add_separator()
         filemenu.add_command(label="Export Report...", command=self.export_report,
                              accelerator="Ctrl+E")
+        filemenu.add_command(label="Export Metrics CSV...", command=self.export_metrics,
+                             accelerator="Ctrl+Shift+E")
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=self.destroy)
         menubar.add_cascade(label="File", menu=filemenu)
@@ -130,6 +135,8 @@ class WorkbenchApp(tk.Tk):
         runmenu = tk.Menu(menubar, tearoff=0)
         runmenu.add_command(label="Run Validation", command=self.run_validation,
                             accelerator="F5")
+        runmenu.add_command(label="Analyze Trace Metrics", command=self.analyze_trace_metrics,
+                            accelerator="Ctrl+M")
         runmenu.add_command(label="Clear Output", command=self.clear_output)
         menubar.add_cascade(label="Run", menu=runmenu)
 
@@ -142,6 +149,7 @@ class WorkbenchApp(tk.Tk):
         self.bind("<Control-o>", lambda e: self.open_trace())
         self.bind("<Control-l>", lambda e: self.load_spec_file())
         self.bind("<Control-e>", lambda e: self.export_report())
+        self.bind("<Control-M>", lambda e: self.analyze_trace_metrics())
         self.bind("<F5>", lambda e: self.run_validation())
 
     def _build_toolbar(self):
@@ -150,6 +158,7 @@ class WorkbenchApp(tk.Tk):
         for label, cmd in (("Open Trace", self.open_trace),
                            ("Load Spec", self.load_spec_file),
                            ("Run Validation", self.run_validation),
+                           ("Trace Metrics", self.analyze_trace_metrics),
                            ("Export Report", self.export_report),
                            ("Clear Output", self.clear_output)):
             ttk.Button(bar, text=label, command=cmd).pack(
@@ -286,6 +295,7 @@ class WorkbenchApp(tk.Tk):
             return
         self.trace_path = path
         self.findings = []
+        self.metrics = None
         self._refresh_trace_table()
         self._set_findings([])
         self.verdict_label.config(text="")
@@ -321,6 +331,7 @@ class WorkbenchApp(tk.Tk):
             return
         # The one line where the GUI asks the engine to do the real work:
         self.findings = validate_trace(self.trace_steps, self.spec)
+        self.metrics = None
         self._refresh_trace_table()
         self._set_findings(self.findings)
         overall = worst_verdict(self.findings)
@@ -356,10 +367,49 @@ class WorkbenchApp(tk.Tk):
         save_report(report, path)
         self._set_status(f"Report exported to {path}")
 
+    def analyze_trace_metrics(self):
+        """Build pandas-based trace analytics and show them in the detail pane."""
+        if not self.trace_path:
+            messagebox.showwarning("No trace", "Open a trace CSV before running analytics.")
+            return
+        try:
+            self.metrics = build_trace_analytics(self.trace_path, self.findings)
+        except MetricsError as exc:
+            messagebox.showerror("Metrics error", str(exc))
+            return
+        self._set_detail(build_metrics_report(self.metrics))
+        self._set_status("Trace analytics complete using pandas: "
+                         f"{self.metrics.row_count} rows analyzed from "
+                         f"{os.path.basename(self.trace_path)}.")
+
+    def export_metrics(self):
+        """Export pandas-based metrics to CSV for review or reporting."""
+        if self.metrics is None:
+            if not self.trace_path:
+                messagebox.showwarning("No trace", "Open a trace CSV before exporting metrics.")
+                return
+            try:
+                self.metrics = build_trace_analytics(self.trace_path, self.findings)
+            except MetricsError as exc:
+                messagebox.showerror("Metrics error", str(exc))
+                return
+        path = filedialog.asksaveasfilename(
+            title="Export Trace Metrics CSV",
+            defaultextension=".csv",
+            filetypes=[("CSV", "*.csv"), ("All files", "*.*")],
+            initialdir=os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "reports"),
+            initialfile="trace_metrics.csv")
+        if not path:
+            return
+        saved_path = export_metrics_csv(self.metrics, path)
+        self._set_status(f"Metrics CSV exported to {saved_path}")
+
     def clear_output(self):
         self.trace_steps = []
         self.trace_path = None
         self.findings = []
+        self.metrics = None
         self._refresh_trace_table()
         self._set_findings([])
         self._set_detail("")
@@ -480,8 +530,8 @@ class WorkbenchApp(tk.Tk):
             f"{APP_NAME} v{APP_VERSION}\n\n"
             "Spec-driven UDS (ISO 14229) conformance validation:\n"
             "ingests diagnostic traces, compares ECU behavior against a\n"
-            "machine-readable diagnostic spec, and generates V&V-style\n"
-            "findings and triage reports.")
+            "machine-readable diagnostic spec, generates V&V-style\n"
+            "findings, and uses pandas for trace analytics metrics.")
 
 
 if __name__ == "__main__":

@@ -1,3 +1,2 @@
-# Runtime: standard library only (tkinter ships with CPython on Windows).
-# Development / CI:
+pandas>=2.0
 pytest>=7.0
