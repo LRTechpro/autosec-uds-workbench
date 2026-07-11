@@ -28,7 +28,6 @@ dragging, no overflow.
 """
 
 import os
-import textwrap
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
@@ -39,7 +38,7 @@ from rules_engine import (load_trace_csv, validate_trace, verdict_for_step,
 from report_writer import build_report, save_report
 
 APP_NAME = "AutoSec UDS Conformance Workbench"
-APP_VERSION = "1.0.1"
+APP_VERSION = "1.0.4"
 
 # Dark workbench palette. Verdicts use conventional test-report colors.
 COLORS = {
@@ -381,42 +380,30 @@ class WorkbenchApp(tk.Tk):
                         s.declared_security, verdict),
                 tags=(verdict,) if verdict else ())
 
+    def _finding_preview(self, finding, limit=52):
+        """Return a short table-safe preview for one finding.
+
+        The Findings table is intentionally a quick triage list. Tkinter
+        Treeview cells do not wrap like a Word document or web table, so the
+        table shows a short preview while the Decoded Detail pane shows the
+        complete engineering explanation when the user selects a finding.
+        """
+        message = " ".join(str(finding.message).split())
+        if len(message) <= limit:
+            return message
+        return message[:limit - 3].rstrip() + "..."
+
     def _set_findings(self, findings):
-        # Keep the full finding objects so selecting a row can show the complete
-        # triage text in the decoded-detail pane.
+        # Keep the list so _on_finding_selected can show full triage text.
         self._shown_findings = list(findings)
-
-        # Clear the findings table before drawing the current result set.
         self.findings_tree.delete(*self.findings_tree.get_children())
-
-        # Insert each finding using a shortened preview message.
-        # Tkinter Treeview cells do not word-wrap, so long findings are shown
-        # as a concise one-line preview in the table and the full text appears
-        # in the detail pane when the user clicks the finding.
         for i, f in enumerate(findings):
+            preview = self._finding_preview(f)
             self.findings_tree.insert(
                 "", "end", iid=str(i),
-                values=(
-                    f.verdict,
-                    f.category,
-                    f.step if f.step is not None else "-",
-                    self._preview_finding_message(f.message),
-                ),
-                tags=(f.verdict,),
-            )
-
-    def _preview_finding_message(self, message):
-        # Normalize whitespace so the findings table stays clean and compact.
-        clean_message = " ".join(str(message).split())
-
-        # Choose a preview length that fits the current message column.
-        # A monospace character is roughly 7 pixels wide at the configured font.
-        message_column_width = self.findings_tree.column("message", option="width")
-        max_characters = max(70, int(message_column_width / 7))
-
-        # Shorten the preview with an ellipsis instead of letting text run past
-        # the visual workbench area.
-        return textwrap.shorten(clean_message, width=max_characters, placeholder=" ...")
+                values=(f.verdict, f.category,
+                        f.step if f.step is not None else "-", preview),
+                tags=(f.verdict,))
 
     def _on_row_selected(self, _event):
         sel = self.trace_tree.selection()
