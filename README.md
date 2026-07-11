@@ -149,3 +149,8 @@ hooks · ISO 21434 threat-mapping annotations.
 ## License
 
 MIT
+
+## Demo Video
+
+AutoSec UDS Conformance Workbench v1.1 demo:
+https://youtu.be/btT2h2Pg_Hc
