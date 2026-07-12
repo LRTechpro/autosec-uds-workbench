@@ -133,12 +133,12 @@ step,module,request,response,session,security_state,note
 `session`/`security_state` are the tester's *declared* state; the engine
 independently derives actual state from responses and cross-checks.
 
-## Library used in v1.1
+## Trace analytics
 
-This version clearly uses the third-party Python library **pandas** for trace
-analytics. Pandas loads the trace CSV, derives additional columns, counts
-service and response distributions, summarizes NRC and DID usage, and exports
-metrics to CSV.
+The `trace_metrics` module uses pandas to derive service and response
+distributions, DID coverage, NRC patterns, security-related requests,
+programming activity, and verdict counts. Metrics can be exported to CSV
+for engineering review and V&V reporting.
 
 ## Roadmap (deliberately out of scope for v1)
 
